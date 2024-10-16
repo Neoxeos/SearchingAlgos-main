@@ -11,8 +11,8 @@ class Grid
         this.nRows = nRows;
         this.nCols = nCols;
         this.cells = [];
-        this.sizeR = canvas.width / this.nRows;
-        this.sizeC = canvas.height / this.nCols;
+        this.sizeR = Math.floor(canvas.width / this.nRows);
+        this.sizeC = Math.floor(canvas.height / this.nCols);
 
         for (let i = 0; i < this.nRows; i++)
         {
@@ -126,7 +126,7 @@ class Game
 {
 
     constructor(){};
-    grid = new Grid(10, 10);
+    grid = new Grid(100, 100);
 
     run() 
     {
