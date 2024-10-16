@@ -12,8 +12,8 @@ class Node
 
         // adjacent cells
         this.left = myGame.grid.cells.find((elem) =>
-            this.x - myGame.grid.sizeR === elem.x &&
-            this.y === elem.y,
+            elem.x === this.x - myGame.grid.sizeR &&
+            elem.y === this.y,
         ) ?? null;
 
         this.right = myGame.grid.cells.find((elem) =>       
@@ -64,11 +64,23 @@ function color(visited, present)
         }
 }
 
+function inArray(visited, obj)
+{
+    for ( var node of visited )
+    {
+        if (obj.x === node.x && obj.y == node.y)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 function BFS(root, eNode)
 {
     var queue = [];
-    var visited = [root];
     var nRoot = new Node(root);
+    var visited = [];
     queue.push(nRoot);
 
     while (queue.length != 0)
@@ -78,30 +90,29 @@ function BFS(root, eNode)
         {
             var node = queue.shift(); // both take and pop here
             visited.push(node);
-            color(visited, queue);
-            console.log(node);
+            //console.log(node);
 
             if (node.tag === 'end') { return buildRes(node);}
 
-            if (node.left !== null && !visited.includes(node.left))
+            if (node.left !== null && !inArray(visited, node.left))
             {
                 var left = new Node(node.left, node);
                 queue.push(left);
             }
 
-            if (node.top !== null && !visited.includes(node.top))
+            if (node.top !== null && !inArray(visited, node.top))
             {
                 var top = new Node(node.top, node);
                 queue.push(top);
             }
 
-            if (node.right !== null && !visited.includes(node.right))
+            if (node.right !== null && !inArray(visited, node.right))
             {
                 var right = new Node(node.right, node);
                 queue.push(right);
             }
 
-            if (node.bot !== null && !visited.includes(node.bot))
+            if (node.bot !== null && !inArray(visited, node.bot))
             {
                 var bot = new Node(node.bot, node);
                 queue.push(bot);
