@@ -14,9 +14,9 @@ class Grid
         this.sizeR = canvas.width / this.nRows;
         this.sizeC = canvas.height / this.nCols;
 
-        for (var i = 0; i < this.nRows; i++)
+        for (let i = 0; i < this.nRows; i++)
         {
-            for (var j = 0; j < this.nCols; j++)
+            for (let j = 0; j < this.nCols; j++)
             {
                 this.cells.push(
                     { x: i * this.sizeR,
@@ -41,8 +41,8 @@ class Grid
 
     pathReady()
     {
-        var count = 0;
-        for (var cell of this.cells)
+        let count = 0;
+        for (let cell of this.cells)
         {
             if (cell.color === 'white')
             {
@@ -58,9 +58,9 @@ class Grid
 
     colorPath(cells)
     {
-        for (var cell of cells)
+        for (let cell of cells)
         {
-            var c = myGame.grid.cells.find((elem) =>
+            let c = myGame.grid.cells.find((elem) =>
             elem.x === cell.x &&
             elem.y === cell.y,);
             c.color = "white";
@@ -70,15 +70,17 @@ class Grid
     search(pattern)
     {
             //find start and end cells
-        for (var cell of myGame.grid.cells)
+        let root;
+        let eNode; 
+        for (let cell of myGame.grid.cells)
         {
             if (cell.tag === 'start')
             {
-                var root = cell;
+                root = cell;
             }
             if (cell.tag === 'end')
             {
-                var eNode = cell;
+                eNode = cell;
             }
         }
 
@@ -96,7 +98,7 @@ class Grid
             const mouseX = event.clientX - canvas.getBoundingClientRect().left;
             const mouseY = event.clientY - canvas.getBoundingClientRect().top;
 
-            var cell = this.cells.find(
+            let cell = this.cells.find(
                 (elem) => 
                     mouseX >= elem.x &&
                     mouseX <= elem.x + this.sizeR &&
@@ -106,7 +108,7 @@ class Grid
 
             cell.color = cell.color === 'white' ? 'blue' : 'white';
             
-            var check = this.pathReady();
+            let check = this.pathReady();
             if (!check) {cell.tag = cell.tag === 'start' ? '' : 'start';}
             else {cell.tag = cell.tag === 'end' ? '' : 'end';}
             
@@ -133,6 +135,6 @@ class Game
     }
 }
 
-var myGame = new Game();
+let myGame = new Game();
 myGame.run();
 
