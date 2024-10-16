@@ -1,3 +1,4 @@
+
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = 1280;
@@ -55,6 +56,17 @@ class Grid
         return false;
     }
 
+    colorPath(cells)
+    {
+        for (var cell of cells)
+        {
+            var c = myGame.grid.cells.find((elem) =>
+            elem.x === cell.x &&
+            elem.y === cell.y,);
+            c.color = "white";
+        }
+    }
+
     search(pattern)
     {
             //find start and end cells
@@ -72,7 +84,7 @@ class Grid
 
         if (pattern === 'BFS')
         {
-            
+            this.colorPath(BFS(root, eNode));
         }
     }
 
@@ -92,17 +104,18 @@ class Grid
                     mouseY <= elem.y + this.sizeC
             );
 
+            cell.color = cell.color === 'white' ? 'blue' : 'white';
+            
             var check = this.pathReady();
             if (!check) {cell.tag = cell.tag === 'start' ? '' : 'start';}
             else {cell.tag = cell.tag === 'end' ? '' : 'end';}
-
-            cell.color = cell.color === 'white' ? 'blue' : 'white';
-            this.draw();
             
             if (check)
             {
                 this.search('BFS');
             }
+
+            this.draw();
         })
     }
 }
@@ -111,7 +124,7 @@ class Game
 {
 
     constructor(){};
-    grid = new Grid(50, 50);
+    grid = new Grid(10, 10);
 
     run() 
     {
@@ -123,5 +136,3 @@ class Game
 var myGame = new Game();
 myGame.run();
 
-
-export {myGame};
