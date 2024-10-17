@@ -4,11 +4,37 @@ const ctx = canvas.getContext('2d');
 canvas.width = 1280;
 canvas.height = 1300;
 
+function generateChaos(sizeR, sizeC)
+{
+    let s = [];
+    for (let i = 0; i < sizeR * sizeC; i++) {
+        let rand = Math.random() * (100 - 1) + 1;
+        if (rand <= 10) { s.push(2); }
+        if (rand > 10 && rand <= 41) { s.push(1); }
+        else { s.push(0); }
+    }
+
+    let text = s.join("");
+    return text;
+}
+
 let environments = {
     "Default" : {
         rows : 30,
         cols : 30,
         map : "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002222222200000000000000000000021111111120000000000000000000211111111112000000000000000002111111111111200000000000000021111111111111120000000000000211111111111111112000000000000211111111111111112000000000000021111111111111120000000000000021111111111111120000000000002111111111111111111200000000000000021111111120000000000000000000011111111110000000000000000000011111111110000000000000000000011111111110000000000000000000011111111110000000000000000000011111111110000000000000000000011111111110000000000000000000011111111110000000000000000000011111111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+
+    "Chaos" : {
+        rows: 50,
+        cols: 50,
+        map : generateChaos(50,50)
+    },
+
+    "ChaosBig" : {
+        rows : 100,
+        cols : 100,
+        map : generateChaos(100,100)
     }
 } 
 
@@ -19,6 +45,7 @@ class Grid
         this.nRows = environment.rows;
         this.nCols = environment.cols;
         this.cells = [];
+        this.initalCells = [];
         this.sizeR = Math.floor(canvas.width / this.nRows);
         this.sizeC = Math.floor(canvas.height / this.nCols);
 
@@ -36,16 +63,23 @@ class Grid
                       color: c,
                       tag: '',
                      });
+
+                this.initalCells.push(
+                    { x: i * this.sizeR,
+                      y: j * this.sizeC,
+                      color: c,
+                      tag: '',
+                    });
             }
         }
     }
 
-    draw(togglePath = false, search = null) 
+    draw(togglePath = false, search = null, inital = false) 
     {
         if (togglePath && search !== null)
         {
-            for (let node of search.queue) {
-                let cell = myGame.grid.cells.find((elem) =>
+            for (const node of search.queue) {
+                let cell = this.cells.find((elem) =>
                     elem.x === node.x &&
                     elem.y === node.y,
                 );
@@ -56,8 +90,8 @@ class Grid
                 ctx.strokeRect(cell.x, cell.y, this.sizeR, this.sizeC);
             }
 
-            for (let cellv of search.visited) {
-                let cell = myGame.grid.cells.find((elem) =>
+            for (const cellv of search.visited) {
+                let cell = this.cells.find((elem) =>
                     elem.x === cellv.x &&
                     elem.y === cellv.y,
                 );
@@ -67,8 +101,8 @@ class Grid
                 ctx.fillRect(cell.x, cell.y, this.sizeR, this.sizeC);
                 ctx.strokeRect(cell.x, cell.y, this.sizeR, this.sizeC);
             }
-            for (let cellv of search.path){
-                let cell = myGame.grid.cells.find((elem) =>
+            for (const cellv of search.path){
+                let cell = this.cells.find((elem) =>
                 elem.x === cellv.x &&
                 elem.y === cellv.y,
                 );
@@ -82,7 +116,8 @@ class Grid
         else 
         {
             for (const cell of this.cells) {
-                ctx.fillStyle = cell.color;
+                if (cell.tag === 'start') {ctx.fillStyle = 'white';}
+                else {ctx.fillStyle = cell.color;}
                 ctx.strokeStyle = "black";
                 ctx.fillRect(cell.x, cell.y, this.sizeR, this.sizeC);
                 ctx.strokeRect(cell.x, cell.y, this.sizeR, this.sizeC);
@@ -90,16 +125,40 @@ class Grid
         }
     }
 
+    resetBoard()
+    {
+        for (const cell of this.initalCells)
+            {
+                let cellv = this.cells.find((elem) =>
+                {
+                    elem.x === cell.x &&
+                    elem.y === cell.y;
+                })
+                console.log(cellv)
+                //cellv.color = cell.color;
+                //cellv.tag = cell.tag;
+            }
+    }
+
     pathReady()
     {
-        let count = 0;
-        for (let cell of this.cells)
+        for (const cell of this.cells)
+        {
+            if (cell.tag === 'end')
+            {
+                console.log('he');
+                this.resetBoard();
+                return false;
+            }
+        }
+        for (const cell of this.cells)
         {
             if (cell.tag === 'start')
             {
                 return true;
             }
         }
+        
         return false;
     }
 
@@ -107,14 +166,20 @@ class Grid
     search(pattern)
     {
         //find start and end cells
-        let root = myGame.grid.cells.find((elem) => elem.tag === 'start');
-        let eNode = myGame.grid.cells.find((elem) => elem.tag === 'end');
+        let root = this.cells.find((elem) => elem.tag === 'start');
+        let eNode = this.cells.find((elem) => elem.tag === 'end');
 
-        if (pattern === 'BFS')
+        if (pattern === 'bfs')
         {
             let bfs = new Search();
-            bfs.BFS(root, eNode);
+            bfs.strategy(root, eNode, 'bfs');
             this.draw(true, bfs);
+        }
+        if (pattern === 'dfs')
+        {
+            let dfs = new Search();
+            dfs.strategy(root, eNode, 'dfs');
+            this.draw(true, dfs);
         }
     }
 
@@ -137,15 +202,12 @@ class Grid
             if (!this.pathReady()) 
             {
                 cell.tag = cell.tag === 'start' ? '' : 'start';
-                ctx.fillStyle = 'black';
-                ctx.strokeStyle = "black";
-                ctx.fillRect(cell.x, cell.y, this.sizeR, this.sizeC);
-                ctx.strokeRect(cell.x, cell.y, this.sizeR, this.sizeC);
             }
             else 
             {
                 cell.tag = cell.tag === 'end' ? '' : 'end';
-                this.search('BFS');
+                this.search('bfs');
+                return;
             }
             this.draw();
         })
@@ -155,7 +217,7 @@ class Grid
 class Game 
 {
     constructor(){};
-    grid = new Grid(environments.Default);
+    grid = new Grid(environments.ChaosBig);
 
     run() 
     {

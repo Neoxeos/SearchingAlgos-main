@@ -42,18 +42,20 @@ inArray(visited, obj)
 }
 
 
-BFS(root, eNode)
+strategy(root, eNode, type)
 {
     const nRoot = new Node(root);
     this.queue.push(nRoot);
-
+    
     while (this.queue.length != 0)
     {
         const size = this.queue.length;
         for (let i = 0; i < size; i++)
         {
             //console.log(JSON.stringify(visited));
-            const node = this.queue.shift(); // both take and pop here
+            let node;
+            if (type === 'bfs'){ node = this.queue.shift();} // both take and pop here
+            if (type === 'dfs'){ node = this.queue.pop();} // note this is called queue but really it is a stack
 
             if (node.tag === 'end') {this.buildRes(node); return;}
 
