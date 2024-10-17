@@ -12,39 +12,26 @@ class Node
     }
 }
 
-function buildRes(node)
+class Search{
+constructor() {}
+
+visited = [];
+queue = [];
+path = []
+
+buildRes(node)
 {
-    let res = [];
     while (node !== null)
     {
-        res.push({x: node.x, y: node.y});
+        this.path.push({x: node.x, y: node.y});
         node = node.parent;
     }
-    return res;
+    return this.path;
 }
 
-function color(visited, present)
+inArray(visited, obj)
 {
-    for (let cell of visited)
-    {
-        ctx.fillStyle = 'red';
-        ctx.strokeStyle = "black";
-        ctx.fillRect(cell.x, cell.y, this.sizeR, this.sizeC);
-        ctx.strokeRect(cell.x, cell.y, this.sizeR, this.sizeC);
-    }
-
-    for (let cell of present)
-        {
-        ctx.fillStyle = 'yellow';
-        ctx.strokeStyle = "black";
-        ctx.fillRect(cell.x, cell.y, this.sizeR, this.sizeC);
-        ctx.strokeRect(cell.x, cell.y, this.sizeR, this.sizeC);
-        }
-}
-
-function inArray(visited, obj)
-{
-    for ( let node of visited )
+    for ( let node of this.visited )
     {
         if (obj.x === node.x && obj.y === node.y)
         {
@@ -54,73 +41,74 @@ function inArray(visited, obj)
     return false;
 }
 
-function BFS(root, eNode)
-{
-    let queue = [];
-    const nRoot = new Node(root);
-    let visited = [];
-    queue.push(nRoot);
 
-    while (queue.length != 0)
+BFS(root, eNode)
+{
+    const nRoot = new Node(root);
+    this.queue.push(nRoot);
+
+    while (this.queue.length != 0)
     {
-        const size = queue.length;
+        const size = this.queue.length;
         for (let i = 0; i < size; i++)
         {
             //console.log(JSON.stringify(visited));
-            const node = queue.shift(); // both take and pop here
-            if (node.tag === 'end') {return buildRes(node);}
+            const node = this.queue.shift(); // both take and pop here
 
-            if (inArray(visited, node)) {continue;}
-            visited.push({x: node.x, y: node.y});
+            if (node.tag === 'end') {this.buildRes(node); return;}
+
+            if (this.inArray(this.visited, node)) {continue;}
+            this.visited.push({x: node.x, y: node.y});
 
             // get adjacent cells
             const left = myGame.grid.cells.find((elem) =>
                 elem.x === node.x - myGame.grid.sizeR &&
-                elem.y === node.y,
+                elem.y === node.y &&
+                elem.color === node.color ,
             ) ?? null;
     
             const right = myGame.grid.cells.find((elem) =>       
                 elem.x === node.x + myGame.grid.sizeR &&
-                elem.y === node.y,
+                elem.y === node.y &&
+                elem.color === node.color,
             ) ?? null;
     
             const top = myGame.grid.cells.find((elem) =>       
                 elem.x === node.x &&
-                elem.y === node.y - myGame.grid.sizeC,
+                elem.y === node.y - myGame.grid.sizeC &&
+                elem.color === node.color,
             ) ?? null;
     
             const bot = myGame.grid.cells.find((elem) =>       
                 elem.x === node.x &&
-                elem.y === node.y + myGame.grid.sizeC,
+                elem.y === node.y + myGame.grid.sizeC &&
+                elem.color === node.color,
             ) ?? null;
-
-            //console.log(JSON.stringify(queue));
-            //console.log(node);
 
             if (left !== null)
             {
                 const leftN = new Node(left, node);
-                queue.push(leftN);
+                this.queue.push(leftN);
             }
 
             if (top !== null)
             {
                 const topN = new Node(top, node);
-                queue.push(topN);
+                this.queue.push(topN);
             }
 
             if (right !== null)
             {
                 const rightN = new Node(right, node);
-                queue.push(rightN);
+                this.queue.push(rightN);
             }
 
             if (bot !== null)
             {
                 const botN = new Node(bot, node);
-                queue.push(botN);
+                this.queue.push(botN);
             }
-            //color(visited, queue);
         }
     }
+}
 }
