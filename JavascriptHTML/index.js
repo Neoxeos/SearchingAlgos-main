@@ -142,8 +142,68 @@ class Grid
         }
     }
 
-    draw(togglePath = false, search = null, inital = false) 
+    draw(togglePath = false, search = null, initial = false, iter = false) 
     {
+        if (iter)
+        {
+            setTimeout( () => {
+            for (const node of search.queue) {
+                let cell = this.cells.find((elem) =>
+                    elem.x === node.x &&
+                    elem.y === node.y,
+                );
+                if (cell !== null) { 
+                    cell.color = 'yellow'; 
+                    if (cell.tag === 'start')
+                        {
+                            cell.color = 'white';
+                        }
+                }
+                ctx.fillStyle = cell.color;
+                ctx.strokeStyle = "black";
+                ctx.fillRect(cell.x, cell.y, this.sizeR, this.sizeC);
+                ctx.strokeRect(cell.x, cell.y, this.sizeR, this.sizeC);
+            }
+
+            for (const cellv of search.visited) {
+                let cell = this.cells.find((elem) =>
+                    elem.x === cellv.x &&
+                    elem.y === cellv.y,
+                );
+                if (cell != null) { 
+                    cell.color = 'red'; 
+                    if (cell.tag === 'start')
+                    {
+                        cell.color = 'white';
+                    }
+                }
+                ctx.fillStyle = cell.color;
+                ctx.strokeStyle = "black";
+                ctx.fillRect(cell.x, cell.y, this.sizeR, this.sizeC);
+                ctx.strokeRect(cell.x, cell.y, this.sizeR, this.sizeC);
+            }
+
+            if (search.path.length !== 0) {
+                for (const cellv of search.path) {
+                    let cell = this.cells.find((elem) =>
+                        elem.x === cellv.x &&
+                        elem.y === cellv.y,
+                    );
+                    cell.color = 'white';
+                    ctx.fillStyle = 'white';
+                    ctx.strokeStyle = "black";
+                    ctx.fillRect(cell.x, cell.y, this.sizeR, this.sizeC);
+                    ctx.strokeRect(cell.x, cell.y, this.sizeR, this.sizeC);
+                }
+                return;
+            }
+
+            search.iter_strategy("bfs");
+            setTimeout(this.draw(true, search, false, iter), 200);
+        }, 200);
+        }
+
+
         if (togglePath && search !== null)
         {
             for (const node of search.queue) {
@@ -237,14 +297,23 @@ class Grid
 
         if (pattern === 'bfs')
         {
-            let bfs = new Search();
-            bfs.strategy(root, eNode, 'bfs');
-            this.draw(true, bfs);
+            let bfs = new Search(root, eNode);
+        
+            let iter = true;
+            if (iter) {
+                bfs.iter_strategy('bfs'); 
+                this.draw(true, bfs, false, iter);
+            }
+            else {
+                bfs.strategy('bfs'); 
+                this.draw(true, bfs);
+            }
         }
+
         if (pattern === 'dfs')
         {
-            let dfs = new Search();
-            dfs.strategy(root, eNode, 'dfs');
+            let dfs = new Search(root, eNode);
+            dfs.strategy('dfs');
             this.draw(true, dfs);
         }
     }
