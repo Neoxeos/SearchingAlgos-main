@@ -16,18 +16,34 @@
 
         <div id="Controller" style="position: absolute; left: 1350px; top: 60px; height: 350px; width: 600px;">
             <label id="labelmap" style="position: absolute; left: 0px; top: 0px; width: 140px; height: 25px;">Select Map:</label>
-
-
-
+            <label id="labelAlgo" style="position: absolute; left: 0px; top: 35px; width: 140px; height: 25px;">Algorithm:</label>
+            <label id="labelIter" style="position: absolute; left: 0px; top: 70px; width: 140px; height: 25px;">Animation:</label>
+            <label id="labelShowExpansion" style="position: absolute; left: 0px; top: 105px; width: 140px; height: 25px;">Show Expansion:</label>
 
 
             <select id="selectmap" onchange="setMap(value)" ;=""
                 style="position: absolute; left: 150px; top: 0px; width: 250px; height: 25px;">
-                <option value="Default">Default (30 x 30)</option>
+                <option value="Default">Default</option>
                 <option value="Chaos">Chaos</option>
                 <option value="ChaosBig">ChaosBig</option>
                 <option value="Caves">Caves</option>
             </select>
+
+            <select id="selectaAlgo" onchange="setAlgo(value)" ;=""
+                style="position: absolute; left: 150px; top: 35px; width: 250px; height: 25px;">
+                <option value="bfs">BFS</option>
+                <option value="dfs">DFS</option>
+            </select>
+
+            <select id="selectIter" onchange="setAnim(value)" ;=""
+                style="position: absolute; left: 150px; top: 70px; width: 250px; height: 25px;">
+                <option value="static">Static</option>
+                <option value="continuous">Continuous</option>
+                <option value="step">Step</option>
+            </select>  
+
+            <input type="checkbox" id="expansion" onclick="setTogglePath()" checked="false"; style="position: absolute; left: 34px; top: 105px; width: 250px; height: 25px;">
+
         </div>
     </div>
     

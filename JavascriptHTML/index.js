@@ -71,6 +71,29 @@ function setMap(value = "Default")
     };
 }
 
+function setAlgo(value)
+{
+    if (value === "bfs")
+    {
+        myGame.algo = "bfs";
+    }
+    if (value === "dfs")
+    {
+        myGame.algo = "dfs";
+    }
+}
+
+function setAnim(value)
+{
+    if (value === "static") { myGame.anim = "static";}
+    if (value === "continuous") { myGame.anim = "continuous";}
+    if (value === "step") { myGame.anim = "step";}
+}
+
+function setTogglePath()
+{
+    myGame.togglePath = document.getElementById('expansion').checked;
+}
 
 class Grid 
 {
@@ -142,10 +165,11 @@ class Grid
         }
     }
 
-    draw(togglePath = false, search = null, initial = false, iter = false) 
+    draw(togglePath = false, search = null, iter = false) 
     {
-        if (iter)
+        if (iter && search !== null && togglePath)
         {
+            // here we will add control for step and animated as needed as if (myGame.anim === "continuous" {} else {})
             setTimeout( () => {
             for (const node of search.queue) {
                 let cell = this.cells.find((elem) =>
@@ -183,7 +207,8 @@ class Grid
                 ctx.strokeRect(cell.x, cell.y, this.sizeR, this.sizeC);
             }
 
-            if (search.path.length !== 0) {
+            if (!search.isRunning) {
+                if ( search.path.length === 0 ) { return; }
                 for (const cellv of search.path) {
                     let cell = this.cells.find((elem) =>
                         elem.x === cellv.x &&
@@ -198,13 +223,13 @@ class Grid
                 return;
             }
 
-            search.iter_strategy("bfs");
-            setTimeout(this.draw(true, search, false, iter), 200);
-        }, 200);
+            search.iter_strategy(myGame.algo);
+            setTimeout(this.draw(true, search, iter), 90);
+        }, 90);
         }
 
 
-        if (togglePath && search !== null)
+        if (togglePath && search !== null && iter === false)
         {
             for (const node of search.queue) {
                 let cell = this.cells.find((elem) =>
@@ -231,8 +256,8 @@ class Grid
             }
             for (const cellv of search.path){
                 let cell = this.cells.find((elem) =>
-                elem.x === cellv.x &&
-                elem.y === cellv.y,
+                    elem.x === cellv.x &&
+                    elem.y === cellv.y,
                 );
                 cell.color = 'white'; 
                 ctx.fillStyle = 'white';
@@ -240,8 +265,26 @@ class Grid
                 ctx.fillRect(cell.x, cell.y, this.sizeR, this.sizeC);
                 ctx.strokeRect(cell.x, cell.y, this.sizeR, this.sizeC);
             }
+            return;
         }
-        else 
+
+        if (!togglePath && search !== null)
+        {
+            for (const cellv of search.path){
+                let cell = this.cells.find((elem) =>
+                    elem.x === cellv.x &&
+                    elem.y === cellv.y,
+                );
+                cell.color = 'white'; 
+                ctx.fillStyle = 'white';
+                ctx.strokeStyle = "black";
+                ctx.fillRect(cell.x, cell.y, this.sizeR, this.sizeC);
+                ctx.strokeRect(cell.x, cell.y, this.sizeR, this.sizeC);
+            }
+            return;
+        }
+
+        if (search === null) 
         {
             for (const cell of this.cells) {
                 if (cell.tag === 'start') {ctx.fillStyle = 'white';}
@@ -250,6 +293,7 @@ class Grid
                 ctx.fillRect(cell.x, cell.y, this.sizeR, this.sizeC);
                 ctx.strokeRect(cell.x, cell.y, this.sizeR, this.sizeC);
             }
+            return;
         }
     }
 
@@ -289,7 +333,7 @@ class Grid
     }
 
 
-    search(pattern)
+    search(pattern, iter)
     {
         //find start and end cells
         let root = this.cells.find((elem) => elem.tag === 'start');
@@ -299,22 +343,28 @@ class Grid
         {
             let bfs = new Search(root, eNode);
         
-            let iter = true;
-            if (iter) {
+            if (iter !== "static") {
                 bfs.iter_strategy('bfs'); 
-                this.draw(true, bfs, false, iter);
+                this.draw(myGame.togglePath, bfs, true);
             }
             else {
                 bfs.strategy('bfs'); 
-                this.draw(true, bfs);
+                this.draw(myGame.togglePath, bfs, false);
             }
         }
 
         if (pattern === 'dfs')
         {
             let dfs = new Search(root, eNode);
-            dfs.strategy('dfs');
-            this.draw(true, dfs);
+
+            if (iter !== "static") {
+                dfs.iter_strategy('dfs'); 
+                this.draw(myGame.togglePath, dfs, true);
+            }
+            else {
+                dfs.strategy('dfs'); 
+                this.draw(myGame.togglePath, dfs, false);
+            }
         }
     }
 
@@ -334,6 +384,7 @@ class Grid
                     mouseY <= elem.y + this.sizeC
             );
 
+            let iter = myGame.anim; // for now here
             if (!this.pathReady()) 
             {
                 cell.tag = cell.tag === 'start' ? '' : 'start';
@@ -341,7 +392,7 @@ class Grid
             else 
             {
                 cell.tag = cell.tag === 'end' ? '' : 'end';
-                this.search('bfs');
+                this.search(myGame.algo, iter);
                 return;
             }
             this.draw();
@@ -352,6 +403,9 @@ class Grid
 class Game 
 {
     constructor(){};
+    algo = "bfs"; //default
+    anim = "static"; //default
+    togglePath = true; //default
     grid;
 
     run() 
