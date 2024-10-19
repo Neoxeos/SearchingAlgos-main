@@ -46,6 +46,27 @@ let environments = {
     }
 } 
 
+// function addAnimSpeed(value) {
+//     if (value !== "static")
+//     {
+//         console.log(value)
+//         const labelExists = document.getElementsByTagName("animspeed");
+//         if (labelExists !== null) { return; }
+//         const newLabel = document.createElement("label", {is:"animspeed"});
+//         console.log(newLabel)
+//         newLabel.style.cssText = "position: absolute; left: 0px; top: 140px; width: 250px; height: 25px;";
+//         newLabel.appendChild(document.createTextNode("Animation speed:"));
+
+//         document.getElementById('controller').appendChild(newLabel);
+//     }
+//     else 
+//     {
+//         console.log(value)
+//         const labelExists = document.getElementsByTagName("animspeed");
+//         if (labelExists !== null) { return; }
+//         else {labelExists.remove();}
+//     }
+//   }
 
 function setMap(value = "Default")
 {
@@ -392,6 +413,10 @@ class Grid
             else 
             {
                 cell.tag = cell.tag === 'end' ? '' : 'end';
+                ctx.fillStyle = "white";
+                ctx.strokeStyle = "black";
+                ctx.fillRect(cell.x, cell.y, this.sizeR, this.sizeC);
+                ctx.strokeRect(cell.x, cell.y, this.sizeR, this.sizeC);
                 this.search(myGame.algo, iter);
                 return;
             }
