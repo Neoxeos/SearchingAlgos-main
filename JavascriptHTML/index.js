@@ -102,6 +102,10 @@ function setAlgo(value)
     {
         myGame.algo = "dfs";
     }
+    if (value === "A")
+    {
+        myGame.algo = "A";
+    }
 }
 
 function setAnim(value)
@@ -387,6 +391,20 @@ class Grid
                 this.draw(myGame.togglePath, dfs, false);
             }
         }
+
+        if (pattern === 'A')
+            {
+                let bfs = new Search(root, eNode);
+            
+                if (iter !== "static") {
+                    bfs.iter_strategy('A'); 
+                    this.draw(myGame.togglePath, bfs, true);
+                }
+                else {
+                    bfs.strategy('A'); 
+                    this.draw(myGame.togglePath, bfs, false);
+                }
+            }
     }
 
     click() 

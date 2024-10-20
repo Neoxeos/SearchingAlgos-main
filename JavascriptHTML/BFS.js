@@ -7,6 +7,8 @@ class Node
         this.y = cell.y;
         this.color = cell.color;
         this.tag = cell.tag;
+        this.cost = 100;
+        this.depth;
 
         this.parent = parent;
     }
@@ -164,7 +166,82 @@ strategy(type)
                 this.queue.push(botN);
             }   
         }
+
+        if (type === "A")
+        {
+            let node = this.queue.shift();
+
+            // heuristic function for now based on manhattan distance since we are considering 4 cell movement
+            function h(n, end) { return Math.abs(n.x - end.x) + Math.abs(n.y - end.y); };
+
+            // evaluation function made to return -1,0,1 depending on nodes to be compatible with sort Javascript function
+            function f(n, end) { return n.cost + h(n, end); };
+
+            if (node.tag === 'end') { this.buildRes(node); this.isRunning = false; return; }
+
+            if (this.inArray(this.visited, node)) { continue; }
+            this.visited.push({ x: node.x, y: node.y });
+
+            // get adjacent cells
+            const left = myGame.grid.cells.find((elem) =>
+                elem.x === node.x - myGame.grid.sizeR &&
+                elem.y === node.y &&
+                elem.color === node.color,
+            ) ?? null;
+
+            const right = myGame.grid.cells.find((elem) =>
+                elem.x === node.x + myGame.grid.sizeR &&
+                elem.y === node.y &&
+                elem.color === node.color,
+            ) ?? null;
+
+            const top = myGame.grid.cells.find((elem) =>
+                elem.x === node.x &&
+                elem.y === node.y - myGame.grid.sizeC &&
+                elem.color === node.color,
+            ) ?? null;
+
+            const bot = myGame.grid.cells.find((elem) =>
+                elem.x === node.x &&
+                elem.y === node.y + myGame.grid.sizeC &&
+                elem.color === node.color,
+            ) ?? null;
+
+            if (left !== null) {
+                const leftN = new Node(left, node);
+                leftN.cost = 100 + node.cost;
+                this.queue.push(leftN);
+            }
+
+            if (top !== null) {
+                const topN = new Node(top, node);
+                topN.cost = 100 + node.cost;
+                this.queue.push(topN);
+            }
+
+            if (right !== null) {
+                const rightN = new Node(right, node);
+                rightN.cost = 100 + node.cost;
+                this.queue.push(rightN);
+            }
+
+            if (bot !== null) {
+                const botN = new Node(bot, node);
+                botN.cost = 100 + node.cost;
+                this.queue.push(botN);
+            }
+
+            // sort queue to get priority_queue DSA
+            // this.queue.sort((a, b) => {
+            //     if (f(a, this.eNode) < f(b, this.eNode)) { return -1; }
+            //     if (f(a, this.eNode) > f(b, this.eNode)) { return 1; }
+            //     else { return 0; }
+            // })
+            this.queue.sort((a,b) => {return f(a,this.eNode) - f(b,this.eNode)});
+            //console.log(this.queue);
+        }
     }
+
 
     this.isRunning = false;
     return;
@@ -290,6 +367,74 @@ iter_strategy(type)
             this.queue.push(botN);
         }
     }
+
+    if (type === "A")
+        {
+            let node = this.queue.shift();
+
+            // heuristic function for now based on manhattan distance since we are considering 4 cell movement
+            function h(n, end) {return Math.abs(n.x - end.x) + Math.abs(n.y - end.y);};
+
+            // evaluation function made to return -1,0,1 depending on nodes to be compatible with sort Javascript function
+            function f(n, end) { return n.cost + h(n, end); };
+
+            if (node.tag === 'end') { this.buildRes(node); this.isRunning = false; return; }
+    
+            if (this.inArray(this.visited, node)) { return; }
+            this.visited.push({ x: node.x, y: node.y });
+    
+            // get adjacent cells
+            const left = myGame.grid.cells.find((elem) =>
+                elem.x === node.x - myGame.grid.sizeR &&
+                elem.y === node.y &&
+                elem.color === node.color,
+            ) ?? null;
+    
+            const right = myGame.grid.cells.find((elem) =>
+                elem.x === node.x + myGame.grid.sizeR &&
+                elem.y === node.y &&
+                elem.color === node.color,
+            ) ?? null;
+    
+            const top = myGame.grid.cells.find((elem) =>
+                elem.x === node.x &&
+                elem.y === node.y - myGame.grid.sizeC &&
+                elem.color === node.color,
+            ) ?? null;
+    
+            const bot = myGame.grid.cells.find((elem) =>
+                elem.x === node.x &&
+                elem.y === node.y + myGame.grid.sizeC &&
+                elem.color === node.color,
+            ) ?? null;
+    
+            if (left !== null) {
+                const leftN = new Node(left, node);
+                this.queue.push(leftN);
+            }
+    
+            if (top !== null) {
+                const topN = new Node(top, node);
+                this.queue.push(topN);
+            }
+    
+            if (right !== null) {
+                const rightN = new Node(right, node);
+                this.queue.push(rightN);
+            }
+    
+            if (bot !== null) {
+                const botN = new Node(bot, node);
+                this.queue.push(botN);
+            }
+
+            // sort queue to get priority_queue DSA
+            this.queue.sort((a,b) => {
+                if (f(a, this.eNode) < f(b, this.eNode)) { return -1;}
+                if (f(a, this.eNode) > f(b, this.eNode)) { return 1;}
+                else { return 0;}
+            })
+        }
 
     if (this.queue.length === 0) {this.isRunning = false; return;}
 }
